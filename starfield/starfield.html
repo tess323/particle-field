@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Star Wars</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+
+	<script src="Three.js"></script>
+
+	<script>
+	// necessary global variables
+	var camera, scene, renderer,
+
+	// conroller based on mouse scroll
+		mouseX = 0, mouseY = 0,
+
+	particles = [];
+
+	init();
+
+	function init(){
+		camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 1, 4000);
+
+		// need to add a positive camera position to make objects visible
+		camera.position.z = 1000;
+
+		// scene contains 3d object data
+		scene = new THREE.Scene();
+		scene.add(camera);
+
+
+		// renderer draws objects in canvas on screen
+
+		renderer = new THREE.CanvasRenderer();
+		renderer.setSize( window.innerWidth, window.innerHeight );
+
+		// add canvas to the page
+		document.body.appendChild( renderer.domElement );
+
+
+		makeParticles();
+
+		document.addEventListener( 'mousemove', onMouseMove, false);
+		// rendering intervals 
+		setInterval(update, 1000/30);
+	}
+
+	// main update function called about 30 times a second
+
+	function update() {
+		updateParticles();
+
+		renderer.render( scene, camera );
+	}
+
+	// random field of particle objects
+
+	function makeParticles(){
+
+			var particle, material;
+			//  move from z position -1000 (far away) 
+				// to 1000 (where the camera is) and add a random particle 
+				for ( var zpos= -1000; zpos < 1000; zpos+=20 ) {
+		
+					// we make a particle material and pass through the 
+					// colour and custom particle render function we defined. 
+					material = new THREE.ParticleCanvasMaterial( { color: 0xffffff,opacity: .4, program: particleRender } );
+					// make the particle
+					particle = new THREE.Particle(material);
+		
+					// give it a random x and y position between -500 and 500
+					particle.position.x = Math.random() * 1000 - 500;
+					particle.position.y = Math.random() * 1000 - 500;
+		
+					// set its z position
+					particle.position.z = zpos;
+		
+					// scale it up a bit
+					particle.scale.x = particle.scale.y = 10;
+		
+					// add it to the scene
+					scene.add( particle );
+		
+					// and to the array of particles. 
+					particles.push(particle);
+		}
+	}
+
+	function particleRender( context ){
+		context.beginPath();
+
+		context.arc( 0,0,1,0, Math.PI * 2, true);
+		context.fill();
+	};
+
+	// move particles based on mouse position
+	// iterate through every particle
+	function updateParticles(){
+		for(var i=0; i<particles.length; i++){
+			particle = particles[i];
+
+			// move it forward based on mouseY position
+
+			particle.position.z += mouseY * 0.1;
+
+			// if the particle is too close move it back
+
+			if(particle.position.z>1000) particle.position.z-=2000;
+
+
+		}
+
+	}
+
+	function onMouseMove( event ){
+		mouseX = event.clientX;
+		mouseY = event.clientY;
+
+	console.log('what up');
+	}
+</script>
+
+
+
+</body>
+</html>
